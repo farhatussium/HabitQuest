@@ -1,0 +1,7 @@
+{
+  "name": "HabitQuest Pro",
+  "description": "A high-performance habit tracking application with real-time statistics, smart insights, and achievement gamification.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
