@@ -16,7 +16,7 @@ const ProgressRing: React.FC<ProgressRingProps> = ({ percentage, size, strokeWid
     <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
       <svg className="transform -rotate-90" width={size} height={size}>
         <circle
-          className="text-slate-100"
+          className="text-slate-100 dark:text-slate-800 transition-colors"
           strokeWidth={strokeWidth}
           stroke="currentColor"
           fill="transparent"
@@ -25,7 +25,7 @@ const ProgressRing: React.FC<ProgressRingProps> = ({ percentage, size, strokeWid
           cy={size / 2}
         />
         <circle
-          className="text-indigo-600 transition-all duration-500 ease-in-out"
+          className="text-indigo-600 dark:text-indigo-500 transition-all duration-500 ease-in-out"
           strokeWidth={strokeWidth}
           strokeDasharray={circumference}
           strokeDashoffset={offset}
@@ -37,7 +37,7 @@ const ProgressRing: React.FC<ProgressRingProps> = ({ percentage, size, strokeWid
           cy={size / 2}
         />
       </svg>
-      <span className="absolute text-xs font-bold text-slate-700">{Math.round(percentage)}%</span>
+      <span className="absolute text-xs font-bold text-slate-700 dark:text-slate-300">{Math.round(percentage)}%</span>
     </div>
   );
 };

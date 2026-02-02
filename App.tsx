@@ -12,6 +12,9 @@ const App: React.FC = () => {
   const [completions, setCompletions] = useState<Completion[]>([]);
   const [currentPage, setCurrentPage] = useState<'dashboard' | 'analytics'>('dashboard');
   const [loading, setLoading] = useState(true);
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    return localStorage.getItem('hq_dark_mode') === 'true';
+  });
 
   // Load initial data from localStorage (Simulating DB)
   useEffect(() => {
@@ -39,6 +42,18 @@ const App: React.FC = () => {
   useEffect(() => {
     localStorage.setItem('hq_completions', JSON.stringify(completions));
   }, [completions]);
+
+  // Dark Mode Side Effect
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    localStorage.setItem('hq_dark_mode', isDarkMode.toString());
+  }, [isDarkMode]);
+
+  const toggleDarkMode = () => setIsDarkMode(prev => !prev);
 
   const addHabit = (name: string, frequency: Frequency, time: string) => {
     const newHabit: Habit = {
@@ -84,7 +99,7 @@ const App: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900 transition-colors">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
       </div>
     );
@@ -100,6 +115,8 @@ const App: React.FC = () => {
       onNavigate={setCurrentPage} 
       activePage={currentPage}
       onLogout={handleLogout}
+      isDarkMode={isDarkMode}
+      onToggleDarkMode={toggleDarkMode}
     >
       {currentPage === 'dashboard' ? (
         <Dashboard 
