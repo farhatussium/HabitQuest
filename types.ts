@@ -15,6 +15,7 @@ export interface Habit {
   frequency: Frequency;
   preferredTime: string;
   enabled: boolean;
+  remindersEnabled: boolean;
   createdAt: string;
 }
 

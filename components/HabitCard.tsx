@@ -7,9 +7,10 @@ interface HabitCardProps {
   completions: Completion[];
   onToggle: () => void;
   onDelete: () => void;
+  onUpdateReminders: (enabled: boolean) => void;
 }
 
-const HabitCard: React.FC<HabitCardProps> = ({ habit, completions, onToggle, onDelete }) => {
+const HabitCard: React.FC<HabitCardProps> = ({ habit, completions, onToggle, onDelete, onUpdateReminders }) => {
   const today = new Date().toISOString().split('T')[0];
   const isCompletedToday = completions.some(c => c.habitId === habit.id && c.date === today);
 
@@ -70,13 +71,27 @@ const HabitCard: React.FC<HabitCardProps> = ({ habit, completions, onToggle, onD
           </button>
 
           <div className="flex-1 min-w-0">
-            <h4 className={`text-lg font-bold truncate transition-all duration-300 ${
-              isCompletedToday 
-              ? 'text-indigo-950 dark:text-indigo-100 line-through opacity-60' 
-              : 'text-slate-800 dark:text-slate-100'
-            }`}>
-              {habit.name}
-            </h4>
+            <div className="flex items-center gap-2">
+              <h4 className={`text-lg font-bold truncate transition-all duration-300 ${
+                isCompletedToday 
+                ? 'text-indigo-950 dark:text-indigo-100 line-through opacity-60' 
+                : 'text-slate-800 dark:text-slate-100'
+              }`}>
+                {habit.name}
+              </h4>
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onUpdateReminders(!habit.remindersEnabled);
+                }}
+                className={`p-1 rounded-md transition-colors ${habit.remindersEnabled ? 'text-indigo-500 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30' : 'text-slate-300 dark:text-slate-600 hover:text-slate-400'}`}
+                title={habit.remindersEnabled ? "Reminders Enabled" : "Reminders Disabled"}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
+                </svg>
+              </button>
+            </div>
             <div className="flex items-center gap-3 text-sm font-medium mt-0.5">
               <span className={`flex items-center gap-1 transition-colors duration-300 ${isCompletedToday ? 'text-orange-500' : 'text-slate-400 dark:text-slate-500'}`}>
                 <span className={isCompletedToday ? 'scale-110' : ''}>🔥</span> {streak} Day Streak

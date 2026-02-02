@@ -8,16 +8,18 @@ import InsightPanel from './InsightPanel';
 interface DashboardProps {
   habits: Habit[];
   completions: Completion[];
-  onAdd: (name: string, freq: Frequency, time: string) => void;
+  onAdd: (name: string, freq: Frequency, time: string, reminders: boolean) => void;
   onDelete: (id: string) => void;
   onToggle: (id: string) => void;
+  onUpdateReminders: (id: string, enabled: boolean) => void;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ habits, completions, onAdd, onDelete, onToggle }) => {
+const Dashboard: React.FC<DashboardProps> = ({ habits, completions, onAdd, onDelete, onToggle, onUpdateReminders }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newName, setNewName] = useState('');
   const [newFreq, setNewFreq] = useState<Frequency>('daily');
   const [newTime, setNewTime] = useState('08:00');
+  const [newReminders, setNewReminders] = useState(true);
 
   const today = new Date().toISOString().split('T')[0];
   const completedToday = completions.filter(c => c.date === today).length;
@@ -26,7 +28,7 @@ const Dashboard: React.FC<DashboardProps> = ({ habits, completions, onAdd, onDel
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (newName.trim()) {
-      onAdd(newName, newFreq, newTime);
+      onAdd(newName, newFreq, newTime, newReminders);
       setNewName('');
       setIsModalOpen(false);
     }
@@ -89,6 +91,7 @@ const Dashboard: React.FC<DashboardProps> = ({ habits, completions, onAdd, onDel
                 completions={completions} 
                 onToggle={() => onToggle(habit.id)}
                 onDelete={() => onDelete(habit.id)}
+                onUpdateReminders={(enabled) => onUpdateReminders(habit.id, enabled)}
               />
             ))
           )}
@@ -146,6 +149,18 @@ const Dashboard: React.FC<DashboardProps> = ({ habits, completions, onAdd, onDel
                     className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-colors"
                   />
                 </div>
+              </div>
+              <div className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
+                <input 
+                  type="checkbox" 
+                  id="enable-reminders"
+                  checked={newReminders}
+                  onChange={(e) => setNewReminders(e.target.checked)}
+                  className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500"
+                />
+                <label htmlFor="enable-reminders" className="text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer">
+                  Enable browser reminders for this habit
+                </label>
               </div>
               <div className="flex gap-4 mt-8">
                 <button 

@@ -53,9 +53,38 @@ const App: React.FC = () => {
     localStorage.setItem('hq_dark_mode', isDarkMode.toString());
   }, [isDarkMode]);
 
+  // Notification Scheduler Logic
+  useEffect(() => {
+    const checkReminders = () => {
+      const now = new Date();
+      const currentHours = now.getHours().toString().padStart(2, '0');
+      const currentMinutes = now.getMinutes().toString().padStart(2, '0');
+      const currentTimeStr = `${currentHours}:${currentMinutes}`;
+      const today = now.toISOString().split('T')[0];
+
+      habits.forEach(habit => {
+        if (habit.remindersEnabled && habit.preferredTime === currentTimeStr) {
+          const isDone = completions.some(c => c.habitId === habit.id && c.date === today);
+          if (!isDone) {
+            // Trigger browser notification
+            if ("Notification" in window && Notification.permission === "granted") {
+              new Notification("HabitQuest Reminder", {
+                body: `Time for: ${habit.name}! Stay consistent.`,
+                icon: "/favicon.ico" // Assuming favicon is root
+              });
+            }
+          }
+        }
+      });
+    };
+
+    const intervalId = setInterval(checkReminders, 60000); // Check every minute
+    return () => clearInterval(intervalId);
+  }, [habits, completions]);
+
   const toggleDarkMode = () => setIsDarkMode(prev => !prev);
 
-  const addHabit = (name: string, frequency: Frequency, time: string) => {
+  const addHabit = (name: string, frequency: Frequency, time: string, remindersEnabled: boolean) => {
     const newHabit: Habit = {
       id: crypto.randomUUID(),
       userId: user?.id || 'guest',
@@ -63,9 +92,22 @@ const App: React.FC = () => {
       frequency,
       preferredTime: time,
       enabled: true,
+      remindersEnabled,
       createdAt: new Date().toISOString(),
     };
     setHabits([...habits, newHabit]);
+
+    // Request notification permission if enabled
+    if (remindersEnabled && "Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+  };
+
+  const updateHabitReminders = (id: string, enabled: boolean) => {
+    setHabits(habits.map(h => h.id === id ? { ...h, remindersEnabled: enabled } : h));
+    if (enabled && "Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
   };
 
   const deleteHabit = (id: string) => {
@@ -125,6 +167,7 @@ const App: React.FC = () => {
           onAdd={addHabit}
           onDelete={deleteHabit}
           onToggle={toggleCompletion}
+          onUpdateReminders={updateHabitReminders}
         />
       ) : (
         <Analytics habits={habits} completions={completions} />
