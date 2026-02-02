@@ -1,20 +1,50 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# 🌿 HabitQuest Pro
 
-# Run and deploy your AI Studio app
+**HabitQuest Pro** is a high-performance, aesthetically pleasing habit tracking application designed to help users build consistency through data-driven insights and gamified motivation.
 
-This contains everything you need to run your app locally.
+## ✨ Key Features
 
-View your app in AI Studio: https://ai.studio/apps/drive/1Km7zZvF979rIksAseJVUVhSIRRh7PGau
+- **🎯 Intelligent Tracking**: Easily create and track daily or weekly habits with a streamlined, mobile-responsive dashboard.
+- **🔥 Streak System**: Real-time streak calculation to keep you motivated and accountable.
+- **🧠 AI Smart Insights**: Powered by **Google Gemini (gemini-3-flash-preview)**, the app analyzes your completion patterns and provides personalized trends, tips, and progress predictions.
+- **📊 Advanced Analytics**: Visualize your consistency over time with interactive area charts and habit performance bar graphs using **Recharts**.
+- **🏆 Achievement Engine**: Unlock badges like "Early Bird," "Week Warrior," and "Centurion" as you hit milestones.
+- **🔒 Persistence**: Seamless data persistence using browser `localStorage` (simulating a robust database experience).
+- **🎨 Premium UI/UX**: Built with **Tailwind CSS** and **Inter** typography, featuring smooth transitions, backdrop blurs, and high-contrast accessibility.
 
-## Run Locally
+## 🛠️ Tech Stack
 
-**Prerequisites:**  Node.js
+- **Frontend**: React (Hooks, Context), TypeScript, Tailwind CSS.
+- **AI Integration**: `@google/genai` (Google Gemini API).
+- **Data Visualization**: Recharts.
+- **Backend Concept**: FastAPI (Python) integration provided in `backend/main.py` for future cloud-scale deployment.
 
+## 🚀 Getting Started
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+### Prerequisites
+
+To use the AI Smart Insights feature, ensure you have a valid Gemini API Key available in your environment as `process.env.API_KEY`.
+
+### Project Structure
+
+- `index.tsx`: Application entry point.
+- `App.tsx`: Root component managing global state, persistence, and navigation.
+- `geminiService.ts`: Core service for communicating with the Gemini AI model.
+- `components/`:
+    - `Dashboard.tsx`: Primary view for daily habit interactions.
+    - `Analytics.tsx`: Data visualization and achievement tracking.
+    - `HabitCard.tsx`: Individual habit management and streak logic.
+    - `InsightPanel.tsx`: The UI bridge for AI-generated feedback.
+    - `Auth.tsx`: Polished login and registration interface.
+- `backend/`: Contains a conceptual FastAPI implementation for a production-ready Python backend.
+
+## 📝 Usage
+
+1. **Create**: Add a new habit via the "New Habit" button on the dashboard.
+2. **Complete**: Tap the checkbox on a habit card to mark it as done for today.
+3. **Analyze**: Head to the Analytics tab to view your long-term progress.
+4. **Learn**: Check the AI Insights panel on your dashboard for tailored habit-building advice.
+
+## 📜 License
+
+MIT License - feel free to build and grow your habits!
