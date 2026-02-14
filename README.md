@@ -23,7 +23,11 @@
 
 ### Prerequisites
 
-To use the AI Smart Insights feature, ensure you have a valid Gemini API Key available in your environment as `process.env.API_KEY`.
+To use the AI Smart Insights feature, ensure you have a valid Gemini API Key.
+1. Copy `.env.example` to `.env`.
+2. Add your `API_KEY` to the `.env` file.
+
+*Note: In the hosted environment, the API key is typically injected automatically via `process.env.API_KEY`.*
 
 ### Project Structure
 
