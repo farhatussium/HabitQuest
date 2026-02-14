@@ -6,6 +6,11 @@ export interface User {
   joinedAt: string;
 }
 
+export interface UserSettings {
+  defaultRemindersEnabled: boolean;
+  defaultReminderTime: string;
+}
+
 export type Frequency = 'daily' | 'weekly';
 
 export interface Habit {

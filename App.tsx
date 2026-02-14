@@ -1,8 +1,9 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { User, Habit, Completion, Frequency, Achievement } from './types';
+import { User, Habit, Completion, Frequency, Achievement, UserSettings } from './types';
 import Dashboard from './components/Dashboard';
 import Analytics from './components/Analytics';
+import Settings from './components/Settings';
 import Auth from './components/Auth';
 import Layout from './components/Layout';
 
@@ -10,8 +11,17 @@ const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [habits, setHabits] = useState<Habit[]>([]);
   const [completions, setCompletions] = useState<Completion[]>([]);
-  const [currentPage, setCurrentPage] = useState<'dashboard' | 'analytics'>('dashboard');
+  const [currentPage, setCurrentPage] = useState<'dashboard' | 'analytics' | 'settings'>('dashboard');
   const [loading, setLoading] = useState(true);
+  
+  const [userSettings, setUserSettings] = useState<UserSettings>(() => {
+    const saved = localStorage.getItem('hq_settings');
+    return saved ? JSON.parse(saved) : {
+      defaultRemindersEnabled: true,
+      defaultReminderTime: '08:00'
+    };
+  });
+
   const [isDarkMode, setIsDarkMode] = useState(() => {
     return localStorage.getItem('hq_dark_mode') === 'true';
   });
@@ -43,6 +53,10 @@ const App: React.FC = () => {
     localStorage.setItem('hq_completions', JSON.stringify(completions));
   }, [completions]);
 
+  useEffect(() => {
+    localStorage.setItem('hq_settings', JSON.stringify(userSettings));
+  }, [userSettings]);
+
   // Dark Mode Side Effect
   useEffect(() => {
     if (isDarkMode) {
@@ -70,7 +84,7 @@ const App: React.FC = () => {
             if ("Notification" in window && Notification.permission === "granted") {
               new Notification("HabitQuest Reminder", {
                 body: `Time for: ${habit.name}! Stay consistent.`,
-                icon: "/favicon.ico" // Assuming favicon is root
+                icon: "/favicon.ico" 
               });
             }
           }
@@ -151,6 +165,29 @@ const App: React.FC = () => {
     return <Auth onLogin={(u) => setUser(u)} />;
   }
 
+  const renderContent = () => {
+    switch (currentPage) {
+      case 'dashboard':
+        return (
+          <Dashboard 
+            habits={habits} 
+            completions={completions} 
+            onAdd={addHabit}
+            onDelete={deleteHabit}
+            onToggle={toggleCompletion}
+            onUpdateReminders={updateHabitReminders}
+            settings={userSettings}
+          />
+        );
+      case 'analytics':
+        return <Analytics habits={habits} completions={completions} />;
+      case 'settings':
+        return <Settings settings={userSettings} onUpdateSettings={setUserSettings} />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <Layout 
       user={user} 
@@ -160,18 +197,7 @@ const App: React.FC = () => {
       isDarkMode={isDarkMode}
       onToggleDarkMode={toggleDarkMode}
     >
-      {currentPage === 'dashboard' ? (
-        <Dashboard 
-          habits={habits} 
-          completions={completions} 
-          onAdd={addHabit}
-          onDelete={deleteHabit}
-          onToggle={toggleCompletion}
-          onUpdateReminders={updateHabitReminders}
-        />
-      ) : (
-        <Analytics habits={habits} completions={completions} />
-      )}
+      {renderContent()}
     </Layout>
   );
 };

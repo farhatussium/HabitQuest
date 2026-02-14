@@ -1,6 +1,6 @@
 
-import React, { useState, useMemo } from 'react';
-import { Habit, Completion, Frequency } from '../types';
+import React, { useState, useEffect } from 'react';
+import { Habit, Completion, Frequency, UserSettings } from '../types';
 import HabitCard from './HabitCard';
 import ProgressRing from './ProgressRing';
 import InsightPanel from './InsightPanel';
@@ -12,14 +12,23 @@ interface DashboardProps {
   onDelete: (id: string) => void;
   onToggle: (id: string) => void;
   onUpdateReminders: (id: string, enabled: boolean) => void;
+  settings: UserSettings;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ habits, completions, onAdd, onDelete, onToggle, onUpdateReminders }) => {
+const Dashboard: React.FC<DashboardProps> = ({ habits, completions, onAdd, onDelete, onToggle, onUpdateReminders, settings }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newName, setNewName] = useState('');
   const [newFreq, setNewFreq] = useState<Frequency>('daily');
-  const [newTime, setNewTime] = useState('08:00');
-  const [newReminders, setNewReminders] = useState(true);
+  const [newTime, setNewTime] = useState(settings.defaultReminderTime);
+  const [newReminders, setNewReminders] = useState(settings.defaultRemindersEnabled);
+
+  // Sync modal state with settings when modal opens
+  useEffect(() => {
+    if (isModalOpen) {
+      setNewTime(settings.defaultReminderTime);
+      setNewReminders(settings.defaultRemindersEnabled);
+    }
+  }, [isModalOpen, settings]);
 
   const today = new Date().toISOString().split('T')[0];
   const completedToday = completions.filter(c => c.date === today).length;

@@ -4,8 +4,8 @@ import { User } from '../types';
 
 interface LayoutProps {
   user: User;
-  onNavigate: (page: 'dashboard' | 'analytics') => void;
-  activePage: 'dashboard' | 'analytics';
+  onNavigate: (page: 'dashboard' | 'analytics' | 'settings') => void;
+  activePage: 'dashboard' | 'analytics' | 'settings';
   onLogout: () => void;
   isDarkMode: boolean;
   onToggleDarkMode: () => void;
@@ -49,6 +49,14 @@ const Layout: React.FC<LayoutProps> = ({ user, onNavigate, activePage, onLogout,
             }`}
           >
             <span className="mr-3 text-lg">📊</span> <span className="font-medium">Analytics</span>
+          </button>
+          <button
+            onClick={() => onNavigate('settings')}
+            className={`w-full flex items-center px-6 py-4 transition-colors ${
+              activePage === 'settings' ? 'bg-indigo-900 border-l-4 border-indigo-400' : 'hover:bg-indigo-900'
+            }`}
+          >
+            <span className="mr-3 text-lg">⚙️</span> <span className="font-medium">Settings</span>
           </button>
         </nav>
 
