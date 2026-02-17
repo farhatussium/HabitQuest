@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { User, Habit, Completion, Frequency, Achievement, UserSettings } from './types';
+import { User, Habit, Completion, Frequency, Priority, Achievement, UserSettings } from './types';
 import Dashboard from './components/Dashboard';
 import Analytics from './components/Analytics';
 import Settings from './components/Settings';
@@ -98,12 +98,13 @@ const App: React.FC = () => {
 
   const toggleDarkMode = () => setIsDarkMode(prev => !prev);
 
-  const addHabit = (name: string, frequency: Frequency, time: string, remindersEnabled: boolean) => {
+  const addHabit = (name: string, frequency: Frequency, priority: Priority, time: string, remindersEnabled: boolean) => {
     const newHabit: Habit = {
       id: crypto.randomUUID(),
       userId: user?.id || 'guest',
       name,
       frequency,
+      priority,
       preferredTime: time,
       enabled: true,
       remindersEnabled,

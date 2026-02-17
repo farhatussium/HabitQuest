@@ -12,12 +12,14 @@ export interface UserSettings {
 }
 
 export type Frequency = 'daily' | 'weekly';
+export type Priority = 'high' | 'medium' | 'low';
 
 export interface Habit {
   id: string;
   userId: string;
   name: string;
   frequency: Frequency;
+  priority: Priority;
   preferredTime: string;
   enabled: boolean;
   remindersEnabled: boolean;

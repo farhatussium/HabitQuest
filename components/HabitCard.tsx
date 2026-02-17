@@ -53,13 +53,38 @@ const HabitCard: React.FC<HabitCardProps> = ({ habit, completions, onToggle, onD
     onToggle();
   };
 
+  const priorityStyles = {
+    high: {
+      badge: 'bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400',
+      indicator: 'bg-rose-500',
+      border: isCompletedToday ? 'border-rose-500/10' : 'border-rose-500/10'
+    },
+    medium: {
+      badge: 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400',
+      indicator: 'bg-indigo-500',
+      border: ''
+    },
+    low: {
+      badge: 'bg-slate-100 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400',
+      indicator: 'bg-slate-400',
+      border: ''
+    }
+  };
+
+  const currentPriority = priorityStyles[habit.priority || 'medium'];
+
   return (
-    <div className={`group relative p-5 rounded-3xl transition-all duration-500 ease-out border-2 ${
+    <div className={`group relative p-5 rounded-3xl transition-all duration-500 ease-out border-2 overflow-hidden ${
       isCompletedToday 
       ? 'bg-white dark:bg-slate-900 border-indigo-500/20 shadow-lg shadow-indigo-500/5 dark:shadow-none' 
-      : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 hover:border-indigo-200 dark:hover:border-indigo-800/60 hover:shadow-xl hover:shadow-slate-200/40 dark:hover:shadow-none'
+      : `bg-white dark:bg-slate-900 ${habit.priority === 'high' ? 'border-rose-100 dark:border-rose-900/20 shadow-rose-100/30' : 'border-slate-100 dark:border-slate-800'} hover:border-indigo-200 dark:hover:border-indigo-800/60 hover:shadow-xl hover:shadow-slate-200/40 dark:hover:shadow-none`
     }`}>
       
+      {/* Priority Left Indicator for High Priority */}
+      {habit.priority === 'high' && !isCompletedToday && (
+        <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-rose-500/80 rounded-r-full"></div>
+      )}
+
       {/* Background Glow Effect for Completed State */}
       {isCompletedToday && (
         <div className="absolute inset-0 bg-indigo-500/5 rounded-3xl pointer-events-none overflow-hidden">
@@ -93,7 +118,7 @@ const HabitCard: React.FC<HabitCardProps> = ({ habit, completions, onToggle, onD
           </button>
 
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 group/title">
+            <div className="flex items-center gap-2 group/title flex-wrap">
               <h4 className={`text-lg font-bold truncate transition-all duration-500 ${
                 isCompletedToday 
                 ? 'text-slate-400 dark:text-slate-500' 
@@ -102,22 +127,28 @@ const HabitCard: React.FC<HabitCardProps> = ({ habit, completions, onToggle, onD
                 {habit.name}
               </h4>
               
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onUpdateReminders(!habit.remindersEnabled);
-                }}
-                className={`p-1.5 rounded-lg transition-all transform active:scale-90 ${
-                  habit.remindersEnabled 
-                  ? 'text-indigo-500 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 ring-1 ring-indigo-500/20' 
-                  : 'text-slate-300 dark:text-slate-700 hover:text-slate-500 dark:hover:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
-                }`}
-                title={habit.remindersEnabled ? "Reminders Enabled" : "Reminders Disabled"}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
-                  <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
-                </svg>
-              </button>
+              <div className="flex items-center gap-2">
+                <span className={`px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-widest rounded-md ${currentPriority.badge}`}>
+                  {habit.priority || 'medium'}
+                </span>
+                
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onUpdateReminders(!habit.remindersEnabled);
+                  }}
+                  className={`p-1.5 rounded-lg transition-all transform active:scale-90 ${
+                    habit.remindersEnabled 
+                    ? 'text-indigo-500 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 ring-1 ring-indigo-500/20' 
+                    : 'text-slate-300 dark:text-slate-700 hover:text-slate-500 dark:hover:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  }`}
+                  title={habit.remindersEnabled ? "Reminders Enabled" : "Reminders Disabled"}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
+                  </svg>
+                </button>
+              </div>
             </div>
 
             <div className="flex items-center gap-4 mt-1">

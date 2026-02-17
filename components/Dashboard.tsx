@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Habit, Completion, Frequency, UserSettings } from '../types';
+import { Habit, Completion, Frequency, Priority, UserSettings } from '../types';
 import HabitCard from './HabitCard';
 import ProgressRing from './ProgressRing';
 import InsightPanel from './InsightPanel';
@@ -8,7 +8,7 @@ import InsightPanel from './InsightPanel';
 interface DashboardProps {
   habits: Habit[];
   completions: Completion[];
-  onAdd: (name: string, freq: Frequency, time: string, reminders: boolean) => void;
+  onAdd: (name: string, freq: Frequency, priority: Priority, time: string, reminders: boolean) => void;
   onDelete: (id: string) => void;
   onToggle: (id: string) => void;
   onUpdateReminders: (id: string, enabled: boolean) => void;
@@ -19,6 +19,7 @@ const Dashboard: React.FC<DashboardProps> = ({ habits, completions, onAdd, onDel
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newName, setNewName] = useState('');
   const [newFreq, setNewFreq] = useState<Frequency>('daily');
+  const [newPriority, setNewPriority] = useState<Priority>('medium');
   const [newTime, setNewTime] = useState(settings.defaultReminderTime);
   const [newReminders, setNewReminders] = useState(settings.defaultRemindersEnabled);
 
@@ -27,6 +28,7 @@ const Dashboard: React.FC<DashboardProps> = ({ habits, completions, onAdd, onDel
     if (isModalOpen) {
       setNewTime(settings.defaultReminderTime);
       setNewReminders(settings.defaultRemindersEnabled);
+      setNewPriority('medium');
     }
   }, [isModalOpen, settings]);
 
@@ -37,11 +39,24 @@ const Dashboard: React.FC<DashboardProps> = ({ habits, completions, onAdd, onDel
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (newName.trim()) {
-      onAdd(newName, newFreq, newTime, newReminders);
+      onAdd(newName, newFreq, newPriority, newTime, newReminders);
       setNewName('');
       setIsModalOpen(false);
     }
   };
+
+  // Sort habits by priority (High > Medium > Low) and then by completion status
+  const sortedHabits = [...habits].sort((a, b) => {
+    const priorityOrder = { high: 0, medium: 1, low: 2 };
+    
+    // Sort by priority first
+    if (priorityOrder[a.priority] !== priorityOrder[b.priority]) {
+      return priorityOrder[a.priority] - priorityOrder[b.priority];
+    }
+    
+    // Then by name
+    return a.name.localeCompare(b.name);
+  });
 
   return (
     <div className="space-y-8">
@@ -93,7 +108,7 @@ const Dashboard: React.FC<DashboardProps> = ({ habits, completions, onAdd, onDel
               <p className="text-slate-500 dark:text-slate-400 font-medium">No habits yet. Start small, grow big!</p>
             </div>
           ) : (
-            habits.map(habit => (
+            sortedHabits.map(habit => (
               <HabitCard 
                 key={habit.id} 
                 habit={habit} 
@@ -113,7 +128,7 @@ const Dashboard: React.FC<DashboardProps> = ({ habits, completions, onAdd, onDel
           <div className="bg-gradient-to-br from-indigo-600 to-violet-700 p-6 rounded-2xl text-white shadow-xl shadow-indigo-100 dark:shadow-none">
             <h4 className="font-bold text-lg mb-2">Pro Tip</h4>
             <p className="text-indigo-100 text-sm">
-              Studies show that checking off habits within the first hour of your preferred time increases consistency by 40%.
+              Focus on your <strong>High Priority</strong> habits first. Completing your most important tasks early creates momentum for the rest of your day.
             </p>
           </div>
         </div>
@@ -123,10 +138,17 @@ const Dashboard: React.FC<DashboardProps> = ({ habits, completions, onAdd, onDel
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl p-8 shadow-2xl border border-white/10 transition-colors">
-            <h3 className="text-2xl font-bold mb-6 text-slate-900 dark:text-white">Create New Habit</h3>
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-2xl font-bold text-slate-900 dark:text-white">Create New Habit</h3>
+              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Habit Name</label>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Habit Name</label>
                 <input 
                   autoFocus
                   type="text" 
@@ -137,9 +159,32 @@ const Dashboard: React.FC<DashboardProps> = ({ habits, completions, onAdd, onDel
                   required
                 />
               </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Priority Level</label>
+                <div className="grid grid-cols-3 gap-3">
+                  {(['low', 'medium', 'high'] as Priority[]).map((p) => (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() => setNewPriority(p)}
+                      className={`py-2.5 px-2 rounded-xl text-xs font-bold uppercase tracking-wider border-2 transition-all ${
+                        newPriority === p 
+                        ? p === 'high' ? 'bg-rose-500 border-rose-500 text-white shadow-lg shadow-rose-500/20' 
+                          : p === 'medium' ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-600/20'
+                          : 'bg-slate-600 border-slate-600 text-white shadow-lg shadow-slate-600/20'
+                        : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-indigo-300 dark:hover:border-indigo-800'
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Frequency</label>
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Frequency</label>
                   <select 
                     value={newFreq}
                     onChange={(e) => setNewFreq(e.target.value as Frequency)}
@@ -150,7 +195,7 @@ const Dashboard: React.FC<DashboardProps> = ({ habits, completions, onAdd, onDel
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Reminder Time</label>
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Reminder Time</label>
                   <input 
                     type="time" 
                     value={newTime}
@@ -159,29 +204,33 @@ const Dashboard: React.FC<DashboardProps> = ({ habits, completions, onAdd, onDel
                   />
                 </div>
               </div>
+
               <div className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
-                <input 
-                  type="checkbox" 
-                  id="enable-reminders"
-                  checked={newReminders}
-                  onChange={(e) => setNewReminders(e.target.checked)}
-                  className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500"
-                />
-                <label htmlFor="enable-reminders" className="text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer">
-                  Enable browser reminders for this habit
+                <div className="flex items-center">
+                  <input 
+                    type="checkbox" 
+                    id="enable-reminders"
+                    checked={newReminders}
+                    onChange={(e) => setNewReminders(e.target.checked)}
+                    className="w-5 h-5 text-indigo-600 rounded-lg border-slate-300 focus:ring-indigo-500 cursor-pointer transition-all"
+                  />
+                </div>
+                <label htmlFor="enable-reminders" className="text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer select-none">
+                  Enable browser reminders
                 </label>
               </div>
-              <div className="flex gap-4 mt-8">
+
+              <div className="flex gap-4 pt-4">
                 <button 
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="flex-1 px-4 py-3 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 font-medium transition-colors"
+                  className="flex-1 px-4 py-4 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 font-bold transition-all"
                 >
                   Cancel
                 </button>
                 <button 
                   type="submit"
-                  className="flex-1 px-4 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 font-bold shadow-lg shadow-indigo-100 dark:shadow-none"
+                  className="flex-1 px-4 py-4 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 font-bold shadow-lg shadow-indigo-600/30 dark:shadow-none transition-all hover:-translate-y-0.5"
                 >
                   Start Habit
                 </button>
